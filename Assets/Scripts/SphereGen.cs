@@ -24,13 +24,13 @@ public class SphereGen : MonoBehaviour
     {
         if(timer > 0)
             timer -= Time.deltaTime;
-        else
+        else if(spheresCreated < 250)
         {
             GameObject newSphere = Instantiate(spehrePrefab, NewPos(), spehrePrefab.transform.rotation, sphereContainer);
             newSphere.GetComponent<SpherePhysics>().spherePrefab = this.spehrePrefab;
             spheresCreated++;
+            newSphere.name = spheresCreated.ToString();
             sphereCounter.text = spheresCreated.ToString();
-            if(spheresCreated >= 250) this.enabled = false;
             timer = timerMax;
         }
     }

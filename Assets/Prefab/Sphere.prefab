@@ -127,4 +127,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gravitationSize: 2
-  gravitationForce: 3
+  gravitationForce: 1
+  spherePrefab: {fileID: 3492743116116386600}
