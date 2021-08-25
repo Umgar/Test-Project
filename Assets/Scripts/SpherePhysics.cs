@@ -11,8 +11,8 @@ public class SpherePhysics : MonoBehaviour
     float gravitationSizeOrg;
     public float gravitationForce = 1;
     float gravitationForceOrg;
-    public int sphereAbsorb { get; private set; } = 1;
     public SphereGen sphereGen;
+    public List<GameObject> merged;
     void Awake()
     {
         gravitationSizeOrg = gravitationSize;
@@ -33,21 +33,21 @@ public class SpherePhysics : MonoBehaviour
             Debug.LogWarning(collision.gameObject.name + " can't convert name to number");
         if (!int.TryParse(this.name, out thisNameVal))
             Debug.LogWarning(this.gameObject.name + " can't convert name to number");
-        if (colliderNameVal > thisNameVal)
+        if (colliderNameVal < thisNameVal)
             Merge(otherTransform);
         else
         {
             Vector3 newPos;
             newPos = (this.transform.position + otherTransform.transform.position) / 2;
-            sphereAbsorb += otherTransform.gameObject.GetComponent<SpherePhysics>().sphereAbsorb;
-            GetBigger(newPos, this.sphereAbsorb);
+            int otherTransformMergedCount = otherTransform.GetComponent<SpherePhysics>().merged.Count;
+            GetBigger(newPos, merged.Count + otherTransformMergedCount +2);
         }
     }
     void GetBigger(Vector3 newPos, int size)
     {
         this.transform.position = newPos;
         this.transform.localScale = new Vector3(size, size, size);
-        if (sphereAbsorb >= 50) { Explode(); return; }
+        if (size == 50) { Explode(); return; }
         gravitationForce = size * gravitationForceOrg;
         gravitationSize = size * gravitationSizeOrg;
     }
@@ -70,24 +70,21 @@ public class SpherePhysics : MonoBehaviour
             }
             anotherRB.MovePosition(newPos);
         }
-        if (offCollider > 0)
-            offCollider -= Time.deltaTime;
-        else this.GetComponent<Collider>().enabled = true;
     }
     void Explode()
     {
-        /*Transform child;
-        while (this.transform.childCount > 0)
+        SpherePhysics sphere;
+        foreach(GameObject o in merged)
         {
-            child = this.transform.GetChild(0);
-            child.SetParent(this.transform.parent);
-            child.GetComponent<Collider>().enabled = false;
-            child.gameObject.SetActive(true);
-            child.localScale = new Vector3(1,1,1);
-            //child.GetComponent<SpherePhysics>().Burst(RandomDir(), 5f);
-        }*/
+            o.transform.position = this.transform.position;
+            o.transform.localScale = new Vector3(1,1,1);
+            sphere = o.GetComponent<SpherePhysics>();
+            sphere.Burst(RandomDir(), 30f);
+            o.SetActive(true);
+            o.AddComponent<NoCollision>();
+        }
         transform.localScale = new Vector3(1, 1, 1);
-        sphereAbsorb = 1;
+        merged.Clear();
     }
     float offCollider = 0;
     Vector3 RandomDir()
@@ -105,21 +102,15 @@ public class SpherePhysics : MonoBehaviour
     }
     public void Merge(Transform gameObject)
     {
-        Transform child;
         SpherePhysics spherePhysics;
-        while (this.transform.childCount > 0)
-        {
-            child = this.transform.GetChild(0);
-            spherePhysics = child.GetComponent<SpherePhysics>();
-            spherePhysics.sphereAbsorb = 1;
-            if (child.childCount > 0)
-                spherePhysics.Merge(gameObject);
-            child.gameObject.SetActive(false);
-            child.SetParent(gameObject);
-        }
         this.transform.position = gameObject.position;
-        sphereAbsorb = 1;
-        this.transform.SetParent(gameObject);
+        spherePhysics = gameObject.GetComponent<SpherePhysics>();
+        foreach(GameObject o in merged)
+        {
+            spherePhysics.merged.Add(o);
+        }
+        merged.Clear();
+        spherePhysics.merged.Add(this.gameObject);
         this.gameObject.SetActive(false);
     }
 }
