@@ -126,6 +126,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20036f60dbf180a4aab987ca230c5f6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gravitationSize: 2
+  gravitationSize: 3
   gravitationForce: 1
-  spherePrefab: {fileID: 3492743116116386600}
+  sphereGen: {fileID: 0}

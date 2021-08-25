@@ -509,7 +509,7 @@ MonoBehaviour:
   - 6
   - 6
   sphereCounter: {fileID: 107440729}
-  spehrePrefab: {fileID: 3492743116116386600, guid: 1318e095b655d2c49ba1f06a10af7131, type: 3}
+  spherePrefab: {fileID: 3492743116116386600, guid: 1318e095b655d2c49ba1f06a10af7131, type: 3}
   sphereContainer: {fileID: 1134566421}
 --- !u!4 &1650073819
 Transform:

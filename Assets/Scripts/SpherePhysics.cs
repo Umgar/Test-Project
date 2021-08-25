@@ -11,20 +11,12 @@ public class SpherePhysics : MonoBehaviour
     float gravitationSizeOrg;
     public float gravitationForce = 1;
     float gravitationForceOrg;
-    public GameObject spherePrefab;
-    Vector3 movementForce;
+    public SphereGen sphereGen;
     void Awake()
     {
         gravitationSizeOrg = gravitationSize;
         gravitationForceOrg = gravitationForce;
         rigidbody = this.GetComponent<Rigidbody>();
-        spherePrefab = GameObject.FindObjectOfType<SphereGen>().spehrePrefab;
-    }
-    public void SetForce(Vector3 force)
-    {
-        this.movementForce = force;
-        this.transform.localScale = new Vector3(1, 1, 1);
-        this.transform.SetParent(this.transform.parent);
     }
     public void SetParents(Transform newParent)
     {
@@ -39,7 +31,7 @@ public class SpherePhysics : MonoBehaviour
         if (!int.TryParse(this.name, out thisNameVal))
             Debug.LogWarning(this.gameObject.name + " can't convert name to number");
         if (colliderNameVal > thisNameVal)
-        { this.transform.SetParent(collision.transform); this.gameObject.SetActive(false); }
+            Destroy(this.gameObject);
         else
         {
             Vector3 size, newPos;
@@ -56,39 +48,24 @@ public class SpherePhysics : MonoBehaviour
         gravitationForce = size.x * gravitationForceOrg;
         gravitationSize = size.x * gravitationSizeOrg;
     }
-    void Update()
+    void FixedUpdate()
     {
         Collider[] colliders = Physics.OverlapSphere(this.transform.position, gravitationSize);
         Rigidbody anotherRB;
-        SpherePhysics spherePhysics = null;
         Vector3 newPos;
-        foreach (Collider collider in colliders)
+        float distance;
+        foreach(Collider collider in colliders)
         {
-            collider.gameObject.TryGetComponent<SpherePhysics>(out spherePhysics);
-            if (spherePhysics == null) continue;
-            else anotherRB = spherePhysics.rigidbody;
-            newPos = Vector3.MoveTowards(anotherRB.position, this.transform.position, gravitationForce * Time.fixedDeltaTime);
-            anotherRB.MovePosition(newPos);
+            anotherRB = collider.gameObject.GetComponent<Rigidbody>();
+            distance = Vector3.Distance(this.transform.position, anotherRB.position);
+            newPos = Vector3.MoveTowards(anotherRB.position, this.transform.position, gravitationForce * Time.fixedDeltaTime / distance);
+            anotherRB.MovePosition(newPos * sphereGen.interpolation);
         }
-        if (movementForce != null)
-            rigidbody.MovePosition(rigidbody.position + movementForce * Time.deltaTime * 20f);
+
     }
     void Explode()
     {
-        /*SpherePhysics[] childs = this.GetComponentsInChildren<SpherePhysics>();
-        foreach (SpherePhysics child in childs)
-        {
-            child.gameObject.SetActive(true);
-            child.SetForce(RandomVector3(1));
-        }
-        SetForce(RandomVector3(1));*/
-    }
-    Vector3 RandomVector3(float range)
-    {
-        float x, y, z;
-        x = Random.Range(-range, range);
-        y = Random.Range(-range, range);
-        z = Random.Range(-range, range);
-        return new Vector3(x, y, z);
+        transform.localScale = new Vector3(1,1,1);
+        //Add 49 spheres
     }
 }

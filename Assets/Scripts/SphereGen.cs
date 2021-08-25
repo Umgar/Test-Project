@@ -10,10 +10,11 @@ public class SphereGen : MonoBehaviour
     [SerializeField]
     float[] offsets = new float[3];
     float timer;
-    int spheresCreated = 0;
+    int spheresCreated = 0, sphereID = 0;
     public Text sphereCounter;
-    public GameObject spehrePrefab;
+    public GameObject spherePrefab;
     public Transform sphereContainer;
+    public int interpolation{private set; get;} = 1;
     void Awake()
     {
         timer = timerMax;
@@ -22,23 +23,29 @@ public class SphereGen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(timer > 0)
+        if (timer > 0)
             timer -= Time.deltaTime;
-        else if(spheresCreated < 250)
+        else if (spheresCreated < 250)
         {
-            GameObject newSphere = Instantiate(spehrePrefab, NewPos(), spehrePrefab.transform.rotation, sphereContainer);
-            newSphere.GetComponent<SpherePhysics>().spherePrefab = this.spehrePrefab;
+            CreateSphere(NewPos());
             spheresCreated++;
-            newSphere.name = spheresCreated.ToString();
             sphereCounter.text = spheresCreated.ToString();
             timer = timerMax;
+            if(spheresCreated == 250) interpolation = -1;
         }
+    }
+    public void CreateSphere(Vector3 position, bool addForce = false)
+    {
+        GameObject newSphere = Instantiate(spherePrefab, position, spherePrefab.transform.rotation, sphereContainer);
+        newSphere.GetComponent<SpherePhysics>().sphereGen = this;
+        newSphere.name = sphereID.ToString();
+        sphereID++;
     }
     Vector3 NewPos()
     {
         float[] localOffsets = new float[3];
-        for(int i=0;i<3;i++)
-            localOffsets[i] = Random.Range(-offsets[i],offsets[i]);
+        for (int i = 0; i < 3; i++)
+            localOffsets[i] = Random.Range(-offsets[i], offsets[i]);
         return new Vector3(localOffsets[0], localOffsets[1], localOffsets[2]);
     }
 }
