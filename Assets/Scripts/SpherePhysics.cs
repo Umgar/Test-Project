@@ -17,13 +17,15 @@ public class SpherePhysics : MonoBehaviour
         gravitationSizeOrg = gravitationSize;
         gravitationForceOrg = gravitationForce;
         rigidbody = this.GetComponent<Rigidbody>();
+
     }
-    public void SetParents(Transform newParent)
+    void Start()
     {
-        this.transform.SetParent(newParent);
+        rigidbody.drag = sphereGen.airResistance;
     }
     void OnCollisionEnter(Collision collision)
     {
+        if (sphereGen.interpolation != 1) return;
         Transform otherTransform = collision.gameObject.transform;
         int colliderNameVal, thisNameVal;
         if (!int.TryParse(collision.gameObject.name, out colliderNameVal))
@@ -44,7 +46,7 @@ public class SpherePhysics : MonoBehaviour
     {
         this.transform.position = newPos;
         this.transform.localScale = size;
-        if (this.transform.localScale.x >= 50) { Explode(); return; }
+        if (gravitationSize / gravitationSizeOrg >= 50) { Explode(); return; }
         gravitationForce = size.x * gravitationForceOrg;
         gravitationSize = size.x * gravitationSizeOrg;
     }
@@ -52,20 +54,31 @@ public class SpherePhysics : MonoBehaviour
     {
         Collider[] colliders = Physics.OverlapSphere(this.transform.position, gravitationSize);
         Rigidbody anotherRB;
-        Vector3 newPos;
+        Vector3 newPos, direciton;
         float distance;
-        foreach(Collider collider in colliders)
+        foreach (Collider collider in colliders)
         {
             anotherRB = collider.gameObject.GetComponent<Rigidbody>();
             distance = Vector3.Distance(this.transform.position, anotherRB.position);
-            newPos = Vector3.MoveTowards(anotherRB.position, this.transform.position, gravitationForce * Time.fixedDeltaTime / distance);
-            anotherRB.MovePosition(newPos * sphereGen.interpolation);
+            if (sphereGen.interpolation == 1)
+                newPos = Vector3.MoveTowards(anotherRB.position, this.transform.position, gravitationForce * Time.fixedDeltaTime / distance);
+            else
+            {
+                direciton = -(this.transform.position - anotherRB.position);
+                newPos = Vector3.MoveTowards(anotherRB.position, (anotherRB.position + direciton), gravitationForce * Time.fixedDeltaTime / distance);
+            }
+            anotherRB.MovePosition(newPos);
         }
 
     }
     void Explode()
     {
-        transform.localScale = new Vector3(1,1,1);
-        //Add 49 spheres
+        transform.localScale = new Vector3(1, 1, 1);
+        //Create 49 spheres
+    }
+    //Function add force to the object
+    public void Burst(Vector3 dir, float strength)
+    {
+        this.rigidbody.AddForce(dir * strength, ForceMode.Impulse);
     }
 }

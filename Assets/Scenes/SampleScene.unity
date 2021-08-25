@@ -504,6 +504,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timerMax: 0.25
+  airResistance: 0.1
   offsets:
   - 6
   - 6

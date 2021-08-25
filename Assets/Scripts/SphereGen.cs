@@ -7,10 +7,12 @@ public class SphereGen : MonoBehaviour
 {
     [SerializeField]
     float timerMax = 0.25f;
+    public float airResistance = 0.10f;
     [SerializeField]
     float[] offsets = new float[3];
     float timer;
-    int spheresCreated = 0, sphereID = 0;
+    public int spheresCreated {private set; get;} = 0;
+    int sphereID = 0;
     public Text sphereCounter;
     public GameObject spherePrefab;
     public Transform sphereContainer;
