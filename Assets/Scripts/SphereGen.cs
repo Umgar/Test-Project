@@ -36,7 +36,7 @@ public class SphereGen : MonoBehaviour
             if(spheresCreated == 250) interpolation = -1;
         }
     }
-    public void CreateSphere(Vector3 position, bool addForce = false)
+    void CreateSphere(Vector3 position, bool addForce = false)
     {
         GameObject newSphere = Instantiate(spherePrefab, position, spherePrefab.transform.rotation, sphereContainer);
         newSphere.GetComponent<SpherePhysics>().sphereGen = this;
