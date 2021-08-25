@@ -6,33 +6,35 @@ public class SpherePhysics : MonoBehaviour
 {
     [SerializeField]
     public new Rigidbody rigidbody { get; protected set; }
+    //Size of gravitation sphere
     [SerializeField]
     float gravitationSize = 1;
     float gravitationSizeOrg;
+    //Attracting/pushing force value
     public float gravitationForce = 1;
     float gravitationForceOrg;
     public SphereGen sphereGen;
+    //List of Spheres that are merged in to this object
     public List<GameObject> merged;
     void Awake()
     {
         gravitationSizeOrg = gravitationSize;
         gravitationForceOrg = gravitationForce;
         rigidbody = this.GetComponent<Rigidbody>();
-
-    }
-    void Start()
-    {
-        rigidbody.drag = sphereGen.airResistance;
     }
     void OnCollisionEnter(Collision collision)
     {
         if (sphereGen.interpolation != 1) return;
         Transform otherTransform = collision.gameObject.transform;
+
+
         int colliderNameVal, thisNameVal;
         if (!int.TryParse(collision.gameObject.name, out colliderNameVal))
             Debug.LogWarning(collision.gameObject.name + " can't convert name to number");
         if (!int.TryParse(this.name, out thisNameVal))
             Debug.LogWarning(this.gameObject.name + " can't convert name to number");
+
+
         if (colliderNameVal < thisNameVal)
             Merge(otherTransform);
         else
@@ -40,13 +42,14 @@ public class SpherePhysics : MonoBehaviour
             Vector3 newPos;
             newPos = (this.transform.position + otherTransform.transform.position) / 2;
             int otherTransformMergedCount = otherTransform.GetComponent<SpherePhysics>().merged.Count;
-            GetBigger(newPos, merged.Count + otherTransformMergedCount +2);
+            GetBigger(newPos, merged.Count + otherTransformMergedCount + 2);
         }
     }
+
     void GetBigger(Vector3 newPos, int size)
     {
         this.transform.position = newPos;
-        this.transform.localScale = new Vector3(size, size, size);
+        this.transform.localScale = new Vector3(1, 1, 1) * size;
         if (size == 50) { Explode(); return; }
         gravitationForce = size * gravitationForceOrg;
         gravitationSize = size * gravitationSizeOrg;
@@ -73,39 +76,24 @@ public class SpherePhysics : MonoBehaviour
     }
     void Explode()
     {
-        SpherePhysics sphere;
-        foreach(GameObject o in merged)
+        foreach (GameObject o in merged)
         {
             o.transform.position = this.transform.position;
-            o.transform.localScale = new Vector3(1,1,1);
-            sphere = o.GetComponent<SpherePhysics>();
-            sphere.Burst(RandomDir(), 30f);
+            o.transform.localScale = new Vector3(1, 1, 1);
             o.SetActive(true);
-            o.AddComponent<NoCollision>();
+            o.AddComponent<SphereBurst>();
         }
         transform.localScale = new Vector3(1, 1, 1);
+        this.gameObject.AddComponent<SphereBurst>();
         merged.Clear();
     }
-    float offCollider = 0;
-    Vector3 RandomDir()
-    {
-        float[] position = new float[3];
-        for (int i = 0; i < 3; i++)
-            position[i] = Random.Range(-1f, 1f);
-        return new Vector3(position[0], position[1], position[2]);
-    }
-    //Function add force to the object
-    public void Burst(Vector3 dir, float strength)
-    {
-        offCollider = 0.5f;
-        this.rigidbody.AddForce(dir * strength, ForceMode.Impulse);
-    }
+
     public void Merge(Transform gameObject)
     {
         SpherePhysics spherePhysics;
         this.transform.position = gameObject.position;
         spherePhysics = gameObject.GetComponent<SpherePhysics>();
-        foreach(GameObject o in merged)
+        foreach (GameObject o in merged)
         {
             spherePhysics.merged.Add(o);
         }

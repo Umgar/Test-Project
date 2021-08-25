@@ -5,24 +5,29 @@ using UnityEngine.UI;
 
 public class SphereGen : MonoBehaviour
 {
+    //Timer for generating the spheres
     [SerializeField]
     float timerMax = 0.25f;
+    float timer;
+    //Value of the air Resistance
     public float airResistance = 0.10f;
+    //Offsets from point [0,0,0] where spheres can spawn
     [SerializeField]
     float[] offsets = new float[3];
-    float timer;
+    //Number of spheres created
     public int spheresCreated {private set; get;} = 0;
-    int sphereID = 0;
+    //UI element that display how many sphere have been created
     public Text sphereCounter;
+    //Original sphere prefab
     public GameObject spherePrefab;
+    //Parent object for the spheres
     public Transform sphereContainer;
+    //Value of the gravitation 1 = attract other objects; 2 = push away other objects
     public int interpolation{private set; get;} = 1;
     void Awake()
     {
         timer = timerMax;
     }
-
-    // Update is called once per frame
     void Update()
     {
         if (timer > 0)
@@ -36,12 +41,11 @@ public class SphereGen : MonoBehaviour
             if(spheresCreated == 250) interpolation = -1;
         }
     }
-    void CreateSphere(Vector3 position, bool addForce = false)
+    void CreateSphere(Vector3 position)
     {
         GameObject newSphere = Instantiate(spherePrefab, position, spherePrefab.transform.rotation, sphereContainer);
         newSphere.GetComponent<SpherePhysics>().sphereGen = this;
-        newSphere.name = sphereID.ToString();
-        sphereID++;
+        newSphere.name = spheresCreated.ToString();
     }
     Vector3 NewPos()
     {
