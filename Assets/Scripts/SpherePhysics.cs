@@ -10,17 +10,18 @@ public class SpherePhysics : MonoBehaviour
     [SerializeField]
     float gravitationSize = 1;
     float gravitationSizeOrg;
-    //Attracting/pushing force value
-    public float gravitationForce = 1;
-    float gravitationForceOrg;
+    //Const gravitation value
+    public float gravitationConstForce = 1;
+    float gravitationConstForceOrg, massOrg;
     public SphereGen sphereGen;
     //List of Spheres that are merged in to this object
     public List<GameObject> merged;
     void Awake()
     {
         gravitationSizeOrg = gravitationSize;
-        gravitationForceOrg = gravitationForce;
+        gravitationConstForceOrg = gravitationConstForce;
         rigidbody = this.GetComponent<Rigidbody>();
+        massOrg = rigidbody.mass;
     }
     void OnCollisionEnter(Collision collision)
     {
@@ -50,20 +51,22 @@ public class SpherePhysics : MonoBehaviour
     {
         this.transform.position = newPos;
         this.transform.localScale = new Vector3(1, 1, 1) * size;
-        if (size == 50) { Explode(); return; }
-        gravitationForce = size * gravitationForceOrg;
+        if (size >= 50) { Explode(); return; }
+        gravitationConstForce = size * gravitationConstForceOrg;
         gravitationSize = size * gravitationSizeOrg;
+        rigidbody.mass = size * massOrg;
     }
     void FixedUpdate()
     {
         Collider[] colliders = Physics.OverlapSphere(this.transform.position, gravitationSize);
         Rigidbody anotherRB;
         Vector3 newPos, direciton;
-        float distance;
+        float distance, gravitationForce;
         foreach (Collider collider in colliders)
         {
             anotherRB = collider.gameObject.GetComponent<Rigidbody>();
             distance = Vector3.Distance(this.transform.position, anotherRB.position);
+            gravitationForce = gravitationConstForce * (this.rigidbody.mass * anotherRB.mass) / Mathf.Pow(distance, 2);
             if (sphereGen.interpolation == 1)
                 newPos = Vector3.MoveTowards(anotherRB.position, this.transform.position, gravitationForce * Time.fixedDeltaTime / distance);
             else
