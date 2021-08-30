@@ -11,15 +11,14 @@ public class SpherePhysics : MonoBehaviour
     float gravitationSize = 1;
     float gravitationSizeOrg;
     //Const gravitation value
-    public float gravitationConstForce = 1;
-    float gravitationConstForceOrg, massOrg;
+    public const float gravitationConstForce = 1;
+    float massOrg;
     public SphereGen sphereGen;
     //List of Spheres that are merged in to this object
     public List<GameObject> merged;
     void Awake()
     {
         gravitationSizeOrg = gravitationSize;
-        gravitationConstForceOrg = gravitationConstForce;
         rigidbody = this.GetComponent<Rigidbody>();
         massOrg = rigidbody.mass;
         
