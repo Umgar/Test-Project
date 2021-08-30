@@ -22,6 +22,11 @@ public class SpherePhysics : MonoBehaviour
         gravitationConstForceOrg = gravitationConstForce;
         rigidbody = this.GetComponent<Rigidbody>();
         massOrg = rigidbody.mass;
+        
+    }
+    void Start()
+    {
+        rigidbody.drag = sphereGen.airResistance;
     }
     void OnCollisionEnter(Collision collision)
     {
@@ -49,10 +54,9 @@ public class SpherePhysics : MonoBehaviour
 
     void GetBigger(Vector3 newPos, int size)
     {
-        this.transform.position = newPos;
+        rigidbody.MovePosition(newPos);
         this.transform.localScale = new Vector3(1, 1, 1) * size;
         if (size >= 50) { Explode(); return; }
-        gravitationConstForce = size * gravitationConstForceOrg;
         gravitationSize = size * gravitationSizeOrg;
         rigidbody.mass = size * massOrg;
     }
@@ -70,7 +74,7 @@ public class SpherePhysics : MonoBehaviour
             direciton = this.transform.position - anotherRB.position;
             if (sphereGen.interpolation != 1)
                 direciton *= -1;
-            if(direciton == new Vector3(0,0,0) || gravitationForce == Mathf.Infinity) continue;
+            if (direciton == new Vector3(0, 0, 0) || gravitationForce == Mathf.Infinity) continue;
             anotherRB.AddForce(direciton.normalized * gravitationForce, ForceMode.Force);
         }
     }

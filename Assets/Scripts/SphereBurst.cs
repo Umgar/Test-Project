@@ -14,7 +14,7 @@ public class SphereBurst : MonoBehaviour
         rigidbody = this.gameObject.GetComponent<Rigidbody>();
         sphereGen = FindObjectOfType<SphereGen>();
         Burst(RandomDir(), 30f);
-        rigidbody.drag = sphereGen.airResistance;
+
     }
     void Update()
     {
