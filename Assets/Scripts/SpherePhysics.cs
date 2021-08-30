@@ -96,10 +96,7 @@ public class SpherePhysics : MonoBehaviour
         SpherePhysics spherePhysics;
         this.transform.position = gameObject.position;
         spherePhysics = gameObject.GetComponent<SpherePhysics>();
-        foreach (GameObject o in merged)
-        {
-            spherePhysics.merged.Add(o);
-        }
+        spherePhysics.merged.AddRange(this.merged);
         merged.Clear();
         spherePhysics.merged.Add(this.gameObject);
         this.gameObject.SetActive(false);
