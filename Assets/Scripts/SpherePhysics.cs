@@ -43,7 +43,7 @@ public class SpherePhysics : MonoBehaviour
             Vector3 newPos;
             newPos = (this.transform.position + otherTransform.transform.position) / 2;
             int otherTransformMergedCount = otherTransform.GetComponent<SpherePhysics>().merged.Count;
-            GetBigger(newPos, merged.Count + otherTransformMergedCount + 2);
+            GetBigger(newPos, merged.Count + otherTransformMergedCount + 1);
         }
     }
 
@@ -60,21 +60,18 @@ public class SpherePhysics : MonoBehaviour
     {
         Collider[] colliders = Physics.OverlapSphere(this.transform.position, gravitationSize);
         Rigidbody anotherRB;
-        Vector3 newPos, direciton;
+        Vector3 direciton;
         float distance, gravitationForce;
         foreach (Collider collider in colliders)
         {
             anotherRB = collider.gameObject.GetComponent<Rigidbody>();
             distance = Vector3.Distance(this.transform.position, anotherRB.position);
             gravitationForce = gravitationConstForce * (this.rigidbody.mass * anotherRB.mass) / Mathf.Pow(distance, 2);
-            if (sphereGen.interpolation == 1)
-                newPos = Vector3.MoveTowards(anotherRB.position, this.transform.position, gravitationForce * Time.fixedDeltaTime / distance);
-            else
-            {
-                direciton = -(this.transform.position - anotherRB.position);
-                newPos = Vector3.MoveTowards(anotherRB.position, (anotherRB.position + direciton), gravitationForce * Time.fixedDeltaTime / distance);
-            }
-            anotherRB.MovePosition(newPos);
+            direciton = this.transform.position - anotherRB.position;
+            if (sphereGen.interpolation != 1)
+                direciton *= -1;
+            if(direciton == new Vector3(0,0,0) || gravitationForce == Mathf.Infinity) continue;
+            anotherRB.AddForce(direciton.normalized * gravitationForce, ForceMode.Force);
         }
     }
     void Explode()

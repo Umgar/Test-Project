@@ -29,8 +29,11 @@ public class SphereBurst : MonoBehaviour
     {
         float[] position = new float[3];
         for (int i = 0; i < 3; i++)
-            position[i] = Random.Range(-1f, 1f);
-        return new Vector3(position[0], position[1], position[2]);
+                position[i] = Random.Range(-1f, 1f);
+        Vector3 newDir = new Vector3(position[0], position[1], position[2]);
+        if(newDir != new Vector3(0,0,0))
+            return newDir;
+        else return RandomDir();
     }
     //Function add force to the object
     public void Burst(Vector3 dir, float strength)
