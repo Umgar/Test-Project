@@ -22,7 +22,7 @@ public class SpherePhysics : MonoBehaviour
         gravitationSizeOrg = gravitationSize;
         rigidbody = this.GetComponent<Rigidbody>();
         massOrg = rigidbody.mass;
-        
+
     }
     void Start()
     {
@@ -40,26 +40,23 @@ public class SpherePhysics : MonoBehaviour
         if (!int.TryParse(this.name, out thisNameVal))
             Debug.LogWarning(this.gameObject.name + " can't convert name to number");
 
-
-        if (colliderNameVal < thisNameVal)
+        if ((colliderNameVal < thisNameVal && collision.rigidbody.mass == this.rigidbody.mass) || collision.rigidbody.mass > this.rigidbody.mass)
             Merge(otherTransform);
         else
         {
-            Vector3 newPos;
-            newPos = (this.transform.position + otherTransform.transform.position) / 2;
             int otherTransformMergedCount = otherTransform.GetComponent<SpherePhysics>().merged.Count;
-            GetBigger(newPos, merged.Count + otherTransformMergedCount + 1);
+            GetBigger(merged.Count + otherTransformMergedCount + 1);
         }
     }
 
-    void GetBigger(Vector3 newPos, int size)
+    void GetBigger(int size)
     {
         this.transform.localScale = new Vector3(1, 1, 1) * size;
         if (size >= 50) { Explode(); return; }
         gravitationSize = size * gravitationSizeOrg;
         rigidbody.mass = size * massOrg;
     }
-    void FixedUpdate()
+    void Update()
     {
         Collider[] colliders = Physics.OverlapSphere(this.transform.position, gravitationSize);
         Vector3 direciton;
