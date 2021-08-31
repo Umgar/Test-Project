@@ -11,7 +11,8 @@ public class SpherePhysics : MonoBehaviour
     float gravitationSize = 1;
     float gravitationSizeOrg;
     //Const gravitation value
-    public const float gravitationConstForce = 1;
+    [SerializeField]
+    const float gravitationConstForce = 1;
     float massOrg;
     public SphereGen sphereGen;
     //List of Spheres that are merged in to this object
@@ -53,7 +54,6 @@ public class SpherePhysics : MonoBehaviour
 
     void GetBigger(Vector3 newPos, int size)
     {
-        rigidbody.MovePosition(newPos);
         this.transform.localScale = new Vector3(1, 1, 1) * size;
         if (size >= 50) { Explode(); return; }
         gravitationSize = size * gravitationSizeOrg;
@@ -62,19 +62,16 @@ public class SpherePhysics : MonoBehaviour
     void FixedUpdate()
     {
         Collider[] colliders = Physics.OverlapSphere(this.transform.position, gravitationSize);
-        Rigidbody anotherRB;
         Vector3 direciton;
         float distance, gravitationForce;
         foreach (Collider collider in colliders)
         {
-            anotherRB = collider.gameObject.GetComponent<Rigidbody>();
-            distance = Vector3.Distance(this.transform.position, anotherRB.position);
-            gravitationForce = gravitationConstForce * (this.rigidbody.mass * anotherRB.mass) / Mathf.Pow(distance, 2);
-            direciton = this.transform.position - anotherRB.position;
-            if (sphereGen.interpolation != 1)
-                direciton *= -1;
+            distance = Vector3.Distance(this.transform.position, collider.transform.position);
+            gravitationForce = gravitationConstForce * (this.rigidbody.mass * collider.attachedRigidbody.mass) / Mathf.Pow(distance, 2);
+            direciton = collider.transform.position - this.transform.position;
+            direciton *= sphereGen.interpolation;
             if (direciton == new Vector3(0, 0, 0) || gravitationForce == Mathf.Infinity) continue;
-            anotherRB.AddForce(direciton.normalized * gravitationForce, ForceMode.Force);
+            rigidbody.AddForce(direciton.normalized * gravitationForce, ForceMode.Force);
         }
     }
     void Explode()
@@ -87,6 +84,8 @@ public class SpherePhysics : MonoBehaviour
             o.AddComponent<SphereBurst>();
         }
         transform.localScale = new Vector3(1, 1, 1);
+        this.gravitationSize = gravitationSizeOrg;
+        this.rigidbody.mass = massOrg;
         this.gameObject.AddComponent<SphereBurst>();
         merged.Clear();
     }

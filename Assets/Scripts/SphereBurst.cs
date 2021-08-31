@@ -32,7 +32,7 @@ public class SphereBurst : MonoBehaviour
                 position[i] = Random.Range(-1f, 1f);
         Vector3 newDir = new Vector3(position[0], position[1], position[2]);
         if(newDir != new Vector3(0,0,0))
-            return newDir;
+            return newDir.normalized;
         else return RandomDir();
     }
     //Function add force to the object
